@@ -1,0 +1,661 @@
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/core/styles';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import { postDataAndImage, getData, postData ,ServerURL} from '../FetchNodeServices';
+import { PinDropSharp } from '@material-ui/icons';
+import Button from '@material-ui/core/Button';
+import { statecity } from '../statecity/StateCity';
+
+
+const useStyles = makeStyles(theme => ({
+   
+}));
+
+export default function DisplayAllAccount(props) {
+
+    const classes = useStyles();
+    const [st,setst]=useState(false)
+    const [getList,setList]=useState([])   
+    const [getOpen,setOpen]=useState(false)
+    const [getAccountno, setAccountno] = useState('')
+    const [getAccountName, setAccountName] = useState('')
+    const [getCreatedById, setCreatedById] = useState('')
+    const [getCreatedDate, setCreatedDate] = useState('')
+    const [getRecordTypeId, setRecordTypeId] = useState('')
+    const [getState, setState] = useState('')
+    const [getAdhar, setAdhar] = useState('')
+    const [getActive, setActive] = useState('')
+    const [getAnnualRevenue, setAnnuaRevenue] = useState('')
+    const [getBillingAddress, setBillingAddress] = useState('')
+    const [getBillingCity, setBillingCity] = useState('')
+    const [getBillingCountry, setBillingCountry] = useState('')
+    const [getGCAccuracy, setGCAccuracy] = useState('')
+    const [getBillingLatitude, setBillingLatitude] = useState('')
+    const [getBillingLong, setBillingLong] = useState('')
+    const [getBillingPostal, setBillingPostal] = useState('')
+    const [getBillingState, setBillingState] = useState('')
+    const [getBillingStreet, setBillingStreet] = useState('')
+    const [getDealerType, setDealerType] = useState('')
+    const [getDescription, setDescription] = useState('')
+    const [getEmail, setEmail] = useState('')
+    const [getEmpid, setEmpid] = useState('')
+    const [getGST, setGST] = useState('')
+    const [getNoofEmployees, setNoofEmployees] = useState('')
+    const [getOutStandingAmount, setOutStandingAmount] = useState('')
+    const [getPartnerType, setPartnerType] = useState('')
+    const [getPhone, setPhone] = useState('')
+    const [getPhotoURL, setPhotoURL] = useState({ pic: '', url: '' })
+    const [getShippingAddress, setShippingAddress] = useState('')
+    const [getShippingCity, setShippingCity] = useState('')
+    const [getShippingCountry, setShippingCountry] = useState('')
+    const [getShippingGCAccuracy, setShippingGCAccuracy] = useState('')
+    const [getShippingLatitude, setShippingLatitude] = useState('')
+    const [getShippingLong, setShippingLong] = useState('')
+    const [getShippingPostalCode, setShippingPostalCode] = useState('')
+    const [getShippingState, setShippingState,] = useState('')
+    const [getShippingStreet, setShippingStreet] = useState('')
+    const [getStatus, setStatus] = useState('')
+    const [getType, setType] = useState('')
+    const [getWareHouse, setWareHouse] = useState('')
+    const [getTypeofDealer, setTypeofDealer] = useState('')
+    const [getId,setId]=useState('')
+    const [getMsg, setMsg] = useState('')
+    const [getBStateList, setBStateList] = useState([])
+    const [getBCityList, setBCityList] = useState([])
+    const [getSStateList, setSStateList] = useState([])
+    const [getSCityList, setSCityList] = useState([])
+
+    const fetchData=async()=>{
+        let body={
+            RecordTypeId:'Company'  
+        }
+        let list=await postData('account/displaycompanyaccounts',body)
+        setList(list.result)
+        setst(true)
+        // console.log(list)
+    }
+
+    useEffect(function(){
+        fetchData()
+        fetchStates()
+    },[])
+
+    const handleClose = () => {
+        setOpen(false);
+        fetchData()
+      };
+
+    const handleDelete=async()=>{
+    var result=await postData('account/deleteRecord',{Id:getId})
+     handleClose()
+    }
+    const fetchStates = async () => {
+        var list = []
+        statecity.map(function (item, key) {
+            list[key] = item.state
+        })
+        setBStateList(list)
+        setSStateList(list)
+    }
+    const fillStates = () => {
+        return getBStateList.map(function (item, key) {
+            return (
+                <option value={item}>
+                    {item}
+                </option>
+            )
+        })
+
+    }
+    const fillSStates = () => {
+        return getSStateList.map(function (item, key) {
+            return (
+                <option value={item}>
+                    {item}
+                </option>
+            )
+        })
+
+    }
+
+    const handleState = (event) => {
+        var state = event.target.value
+        setBillingState(state)
+        fetchCity(state)
+    }
+    const handleSState = (event) => {
+        var state = event.target.value
+        setShippingState(state)
+        fetchSCity(state)
+    }
+    const fetchCity = async (selectstate) => {
+        var list = []
+        statecity.map(function (item, key) {
+            if (item.state == selectstate) {
+                item.districts.map(function (data, key) {
+                    list[key] = data
+                })
+            }
+        })
+        setBCityList(list)
+    }
+    const fetchSCity = async (selectstate) => {
+        var list = []
+        statecity.map(function (item, key) {
+            if (item.state == selectstate) {
+                item.districts.map(function (data, key) {
+                    list[key] = data
+                })
+            }
+        })
+        setSCityList(list)
+    }
+    const fillCities = () => {
+        return getBCityList.map(function (item, key) {
+            return (
+                <option value={item}>
+                    {item}
+                </option>
+            )
+        })
+    }
+    const fillSCities = () => {
+        return getSCityList.map(function (item, key) {
+            return (
+                <option value={item}>
+                    {item}
+                </option>
+            )
+        })
+    }
+      const handleEdit=async()=>{
+   
+        const formData=new FormData()
+        formData.append('adhar',getAdhar)
+        formData.append('accountno',getAccountno)
+        formData.append('active',getActive)
+        formData.append('annual',getAnnualRevenue)
+        formData.append('baddress',getBillingAddress)
+        formData.append('bcity',getBillingCity)
+        formData.append('bcountry',getBillingCountry)
+        formData.append('bgcaccuracy',getGCAccuracy)
+        formData.append('blatitude',getBillingLatitude)
+        formData.append('blongitude',getBillingLong)
+        formData.append('bpostal',getBillingPostal)
+        formData.append('bstate',getBillingState)
+        formData.append('bstreet',getBillingStreet)
+        formData.append('createdbyid',getCreatedById)
+        formData.append('createddate',getCreatedDate)
+        formData.append('dealertype',getDealerType)
+        formData.append('desc',getDescription)
+        formData.append('email',getEmail)
+        formData.append('empid',getEmpid)
+        formData.append('gst',getGST)
+        formData.append('accname',getAccountName)
+        formData.append('noofemp',getNoofEmployees)
+        formData.append('outstdamt',getOutStandingAmount)
+        formData.append('partner',getPartnerType)
+        formData.append('phone',getPhone)
+        formData.append('photo',getPhotoURL.pic)
+        formData.append('recordid',getRecordTypeId)
+        formData.append('saddress',getShippingAddress)
+        formData.append('scity',getShippingCity)
+        formData.append('scountry',getShippingCountry)
+        formData.append('sgcaccuracy',getShippingGCAccuracy)
+        formData.append('slatitude',getShippingLatitude)
+        formData.append('slongitude',getShippingLong)
+        formData.append('spostal',getShippingPostalCode)
+        formData.append('sstate',getShippingState)
+        formData.append('sstreet',getShippingStreet)
+        formData.append('state',getState)
+        formData.append('status',getStatus) 
+        formData.append('type',getType)
+        formData.append('typeofdealer',getTypeofDealer)
+        formData.append('warehouse',getWareHouse) 
+        formData.append('Id',getId)
+        const config={headers:{'content-type':'multipart/form-data'}}
+        let result=await postDataAndImage('account/updateRecord',formData,config)
+        console.log(result)
+        if(result)
+        {setMsg("Record Edited")}
+        else
+        {
+          setMsg("Fail to Edit Record")
+        }
+           
+}  
+    const handleData=(item)=>{
+           setOpen(true)
+           fetchCity(item.BillingState)
+           fetchSCity(item.ShippingState)
+           setAccountno(item.AccountNumber)
+           setAccountName(item.AccountNumber)
+           setCreatedById(item.CreatedById)
+           setCreatedDate(item.CreatedDate)
+           setRecordTypeId(item.RecordTypeId)
+           setState(item.State__c)
+           setAdhar(item.Aadhar_No__c)
+           setActive(item.Active__c)
+           setAnnuaRevenue(item.AnnualRevenue)
+           setBillingAddress(item.BillingAddress)
+           setBillingCity(item.BillingCity)
+           setBillingCountry(item.BillingCountry)
+           setGCAccuracy(item.BillingGeocodeAccuracy)
+           setBillingLatitude(item.BillingLatitude)
+           setBillingLong(item.BillingLongitude)
+           setBillingPostal(item.BillingPostalCode)
+           setBillingState(item.BillingState)
+           setBillingStreet(item.BillingStreet)
+           setDealerType(item.Dealer_Type__c)
+           setDescription(item.Description)
+           setEmail(item.Email__c)
+           setEmpid(item.Emp_ID__c)
+           setGST(item.GSTIN__c)
+           setNoofEmployees(item.NumberOfEmployees)
+           setOutStandingAmount(item.Out_Standing_Amount__c)
+           setPartnerType(item.Partner_Type__c)
+           setPhone(item.Phone)
+           setPhotoURL({pic:'',url:`${ServerURL}/images/${item.PhotoUrl}`})
+           setShippingAddress(item.ShippingAddress)
+           setShippingCity(item.ShippingCity)
+           setShippingCountry(item.ShippingCountry)
+           setShippingGCAccuracy(item.ShippingGeoCodeAccuracy)
+           setShippingLatitude(item.ShippingLatitude)
+           setShippingLong(item.ShippingLongitude)
+           setShippingPostalCode(item.ShippingPostalCode)
+           setShippingState(item.ShippingState)
+           setShippingStreet(item.ShippingStreet)
+           setStatus(item.Status__c)
+           setType(item.Type)
+           setWareHouse(item.Warehouse__c)
+           setTypeofDealer(item.Type_of_Dealer__c)
+           setId(item.Id)
+           setMsg('')
+     }
+
+    const editDialog=()=>{
+        return(
+        <Dialog
+               fullScreen open={getOpen} onClose={handleClose}
+                style={{alignItems:'center',justifyContent:'center',width:window.innerWidth}}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+              >
+                <DialogTitle id="alert-dialog-title">{"Edit Account"}</DialogTitle>
+                <DialogContent>
+            <div class="card-body" style={{ padding: 10, marginLeft: 60, marginRight: 60 }}>
+                <form class="needs-validation" novalidate="" >
+
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom01">Adhar no</label>
+                            <input type="text" class="form-control" value={getAdhar} placeholder="Adhar no" onChange={(event) => setAdhar(event.target.value)} required />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Account Number</label>
+                            <input type="text" class="form-control" value={getAccountno} onChange={(event) => setAccountno(event.target.value)} placeholder="Account Number" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                         <label for="inputState" class="col-form-label">Active</label>
+                          <select id="inputState" class="form-control" value={getActive} onChange={(event)=>setActive(event.target.value)}>
+                          <option>~ Select ~</option>  
+                          <option value='Yes'>Yes</option>
+                          <option value='No'>No</option>
+                          </select>
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom01">Annual Revenue</label>
+                            <input type="text" class="form-control" id="validationCustom01" value={getAnnualRevenue} onChange={(event) => setAnnuaRevenue(event.target.value)} placeholder="Annual Revenue" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-4 mb-3">
+                            <label for="validationCustom02">Billing State</label>
+                            <select id="inputState" class="form-control" value={getBillingState} onChange={(event) => handleState(event)}>
+                                    <option>Select State</option>
+                                    {fillStates()}
+                                </select>
+                            </div>
+                            <div class="col-md-4 md-3 ">
+                                <label for="validationCustom02">Billing City</label>
+                                <select id="inputState" class="form-control" value={getBillingCity} onChange={(event) => setBillingCity(event.target.value)}>
+                                    <option>Select City</option>
+                                    {fillCities()}
+                                </select>  </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="validationCustom02">Billing Address</label>
+                            <input type="text" class="form-control" value={getBillingAddress} onChange={(event) => setBillingAddress(event.target.value)} placeholder="Billing Address" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Billing Country</label>
+                            <input type="text" class="form-control" value={getBillingCountry} onChange={(event) => setBillingCountry(event.target.value)} placeholder="Billing Country" required />
+                        </div>
+                        <div class="col-md-6 md-2 ">
+                            <label for="validationCustom02">Billing Geocode Accuracy</label>
+                            <input type="text" class="form-control" value={getGCAccuracy} onChange={(event) => setGCAccuracy(event.target.value)} placeholder="Billing Geocode Accuracy" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Billing Latitude</label>
+                            <input type="text" class="form-control" value={getBillingLatitude} onChange={(event) => setBillingLatitude(event.target.value)} placeholder="Billing Latitude" required />
+                        </div>
+                        <div class="col-md-6 md-2 ">
+                            <label for="validationCustom02">Billing Longitude</label>
+                            <input type="text" class="form-control" value={getBillingLong} onChange={(event) => setBillingLong(event.target.value)} placeholder="Billing Longitude" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-6 md-2 ">
+                            <label for="validationCustom02">Billing Postal Code</label>
+                            <input type="text" class="form-control" value={getBillingPostal} onChange={(event) => setBillingPostal(event.target.value)} placeholder="Billing Postal Code" required />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Ware house</label>
+                            <input type="text" class="form-control" value={getWareHouse} onChange={(event) => setWareHouse(event.target.value)} placeholder="Ware House" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Billing Street</label>
+                            <input type="text" class="form-control" value={getBillingStreet} onChange={(event) => setBillingStreet(event.target.value)} placeholder="Billing Street" required />
+                        </div>
+                        <div class="col-md-6 md-2 ">
+                            <label for="validationCustom02">Created By Id</label>
+                            <input type="text" class="form-control" value={getCreatedById} onChange={(event) => setCreatedById(event.target.value)} placeholder="Created By Id" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Created Date</label>
+                            <input type="date" class="form-control" value={getCreatedDate} onChange={(event) => setCreatedDate(event.target.value)} placeholder="Created Date" required />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                          <label for="inputState" class="col-form-label">Dealer Type</label>
+                          <select id="inputState" class="form-control" value={getDealerType} onChange={(event)=>setDealerType(event.target.value)}>
+                          <option>~ Select ~</option>  
+                          <option value='Individual'>Individual</option>
+                          <option value='Private Limited'>Private Limited</option>
+                          <option value='Registered'>Registered</option>
+                          </select>
+                          </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Description</label>
+                            <input type="text" class="form-control" value={getDescription} onChange={(event) => setDescription(event.target.value)} placeholder="Description" required />
+                        </div>
+                        <div class="col-md-6 md-2 ">
+                            <label for="validationCustom02">Email</label>
+                            <input type="text" class="form-control" value={getEmail} onChange={(event) => setEmail(event.target.value)} placeholder="Email" required />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Employee Id</label>
+                            <input type="text" class="form-control" value={getEmpid} onChange={(event) => setEmpid(event.target.value)} placeholder="Employee Id" required />
+                        </div>
+                        <div class="col-md-6 md-2 ">
+                            <label for="validationCustom02">GST</label>
+                            <input type="text" class="form-control" value={getGST} onChange={(event) => setGST(event.target.value)} placeholder="GST" required />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6 md-2 ">
+                            <label for="validationCustom02">Account Name</label>
+                            <input type="text" class="form-control" value={getAccountName} onChange={(event) => setAccountName(event.target.value)} placeholder="Account Name" required />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">No of Employees</label>
+                            <input type="text" class="form-control" value={getNoofEmployees} onChange={(event) => setNoofEmployees(event.target.value)} placeholder="No of Employees" required />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Out Standing Amount</label>
+                            <input type="text" class="form-control" value={getOutStandingAmount} onChange={(event) => setOutStandingAmount(event.target.value)} placeholder="Out Standard Amount" required />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                          <label for="inputState" class="col-form-label">Partner Type</label>
+                          <select id="inputState" class="form-control" value={getPartnerType} onChange={(event)=>setPartnerType(event.target.value)}>
+                          <option>~ Select ~</option>  
+                          <option value='Gold'>Gold</option>
+                          <option value='Silver'>Silver</option>
+                          <option value='Platinum'>Platinum</option>
+                          </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Account Phone</label>
+                            <input type="text" class="form-control" value={getPhone} onChange={(event) => setPhone(event.target.value)} placeholder="Account Phone" required />
+                        </div>
+                        <div class="col-md-6 md-2 ">
+                <label for="validationCustom02">Photo url&nbsp;</label>
+                <br />
+                <input
+                  accept="image/*"
+                  id="image"
+                  type="file"
+                  onChange={(event) => setPhotoURL({ pic: event.target.files[0], url: URL.createObjectURL(event.target.files[0]) })}
+                />
+                <img
+                  src={getPhotoURL.url}
+                  style={{
+                    verticalalign: "middle",
+                    width: 50,
+                    height: 50,
+                    borderradius: 50,
+                  }}
+                  variant="rounded"
+                  className={classes.large}
+                />
+              </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Record Type Id</label>
+                            <input type="text" class="form-control" value={getRecordTypeId} onChange={(event) => setRecordTypeId(event.target.value)} placeholder="Record Type Id" required />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Shipping State</label>
+                            <select id="inputState" class="form-control" value={getShippingState} onChange={(event) => handleSState(event)}>
+                                    <option>Select State</option>
+                                    {fillSStates()}
+                                </select>
+                            </div>
+
+                    </div>
+                    <div class="form-row">
+                            <div class="col-md-6">
+                                <label for="validationCustom02">Shipping City</label>
+                                <select id="inputState" class="form-control" value={getShippingCity} onChange={(event) => setShippingCity(event.target.value)}>
+                                    <option>Select City</option>
+                                    {fillSCities()}
+                                </select>
+                            </div>
+                        <div class="col-md-6">
+                            <label for="validationCustom02">Shipping Address</label>
+                            <input type="text" class="form-control" value={getShippingAddress} onChange={(event) => setShippingAddress(event.target.value)} placeholder="Shipping Address" required />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Shipping Country</label>
+                            <input type="text" class="form-control" value={getShippingCountry} onChange={(event) => setShippingCountry(event.target.value)} placeholder="Shipping Country" required />
+                        </div>
+                        <div class="col-md-6 md-2 ">
+                            <label for="validationCustom02">Shipping Geocode Accuracy</label>
+                            <input type="text" class="form-control" value={getShippingGCAccuracy} onChange={(event) => setShippingGCAccuracy(event.target.value)} placeholder="Shipping Geocode Accuracy" required />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Shipping Latitude</label>
+                            <input type="text" class="form-control" value={getShippingLatitude} onChange={(event) => setShippingLatitude(event.target.value)} placeholder="Shipping Latitude" required />
+                        </div>
+                        <div class="col-md-6 md-2 ">
+                            <label for="validationCustom02">Shipping Longitude</label>
+                            <input type="text" class="form-control" value={getShippingLong} onChange={(event) => setShippingLong(event.target.value)} placeholder="Shipping Longitude" required />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">Shipping Postal</label>
+                            <input type="text" class="form-control" value={getShippingPostalCode} onChange={(event) => setShippingPostalCode(event.target.value)} placeholder="Shipping Postal Code" required />
+                        </div>
+                        <div class="col-md-6 md-2 ">
+                            <label for="validationCustom02">Shipping Street</label>
+                            <input type="text" class="form-control" value={getShippingStreet} onChange={(event) => setShippingStreet(event.target.value)} placeholder="Shipping Street" required />
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2">
+                            <label for="validationCustom02">State</label>
+                            <input type="text" class="form-control" value={getState} onChange={(event) => setState(event.target.value)} placeholder="State" required />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                          <label for="inputState" class="col-form-label">Status</label>
+                          <select id="inputState" class="form-control" value={getStatus} onChange={(event)=>setStatus(event.target.value)}>
+                          <option>~ Select ~</option>  
+                          <option value='Draft'>Draft</option>
+                          <option value='Active'>Active</option>
+                          </select>
+                          </div>
+                    </div>
+                    <div class="form-row">
+                    <div class="col-md-6 mb-2">
+                          <label for="inputState" class="col-form-label">Account Type</label>
+                          <select id="inputState" class="form-control" value={getType} onChange={(event)=>setType(event.target.value)}>
+                          <option>~ Select ~</option>  
+                          <option value='Prospect'>Prospect</option>
+                          <option value='Customer-Direct'>Customer-Direct</option>
+                          <option value='Customer-Channel'>Customer-Channel</option>
+                          <option value='Channel Partner/Reseller'>Channel Partner/Reseller</option>
+                          <option value='Installation Partner'>Installation Partner</option>
+                          <option value='Technology Partner'>Technology Partner</option>
+                          <option value='Other'>Other</option>
+                          </select>
+                          </div>
+                          
+                          <div class="col-md-6 mb-2">
+                          <label for="inputState" class="col-form-label">Type of Dealer</label>
+                          <select id="inputState" class="form-control" value={getTypeofDealer} value={getTypeofDealer} onChange={(event)=>setTypeofDealer(event.target.value)}>
+                          <option>~ Select ~</option>  
+                          <option value='Registered'>Registered</option>
+                         </select>
+                          </div>
+                    </div>
+                   
+                    <div class="form-row">
+                        <div class="col-md-6 mb-2" style={{display:'flex',justifyContent:'center',alignItems:'center',padding:5}}>
+                            <button type="button" class="btn btn-primary" onClick={() => handleEdit()}>Edit</button>
+                        </div>
+                        <div class="col-md-6 mb-2" style={{display:'flex',justifyContent:'center',alignItems:'center',padding:5}}>
+                            <button type="button" class="btn btn-primary" onClick={() => handleDelete()}>Delete</button>
+                        </div>
+                    </div>
+                    <div>
+                        <b>Message : {getMsg}</b>
+                    </div>
+
+                </form>
+            </div>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleClose} color="primary">
+                    CANCEL
+                  </Button>
+                  
+                </DialogActions>
+              </Dialog>  
+        )          
+        }
+  const showData=()=>{
+        return(
+            getList.map((item,index)=>{
+                return (
+                   <tr style={{cursor:'pointer'}}  onClick={()=>handleData(item)}>
+                      <td>{item.Id}</td> 
+                      <td>{item.AccountNumber}</td> 
+                      <td>{item.Name}</td> 
+                      <td>{item.Aadhar_No__c}</td> 
+                      <td>{item.Phone}</td> 
+                      <td>{item.Type}</td> 
+                   </tr>
+                )
+            })
+        )
+  }
+
+  const showTable=()=>{
+      return(<div style={{display:'flex',justifyContent:'center', alignItems:'center',}}>
+      <div class="container-fluid my-3">
+          <div class="row">
+              <div class="col-md-12">
+
+
+                  <div class="card my-3 no-b">
+                      <div class="card-body">
+                      <div class="card-title"> <center><h4><b>Display All Accounts</b></h4></center></div>
+                            <table id="example2" class="table table-bordered table-hover data-tables"
+                                 data-options='{ "paging": false; "searching":false}'>
+                              <thead>
+                              <tr>
+                                  <th>Account Id</th>
+                                  <th>Account Number</th>
+                                  <th>Account Name</th>
+                                  <th>Adhar no</th>
+                                  <th>Account Phone</th>
+                                  <th>Account Type</th>
+                              </tr>
+                              </thead>
+                              
+                             <tbody>
+                           {showData()}
+                             </tbody>
+      
+                          </table>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>)
+  }
+
+  
+    return (
+      <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
+<div>
+{ showTable() }
+{editDialog()}
+</div>
+      </div>
+    );
+
+
+
+}
+

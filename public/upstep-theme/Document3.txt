@@ -1,0 +1,159 @@
+       <div>
+            <span>
+                <div id="app" >
+                    <aside style={{position:'sticky'}}class="main-sidebar fixed offcanvas shadow" data-toggle='offcanvas'>
+                        <section class="sidebar">
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: 10 }}>
+                                <h3><b>Dashboard</b></h3>
+                            </div>
+                            <div class="relative">
+
+                                <div class="user-panel p-3 light mb-2">
+                                    <div>
+                                        <div class="float-left image">
+                                            <img class="user_avatar" src="assets/img/dummy/u2.png" alt="User Image" />
+                                        </div>
+                                        <div class="float-left info">
+                                            <h6 class="font-weight-light mt-2 mb-1">Alexander Pierce</h6>
+                                            <a href="#"><i class="icon-circle text-primary blink"></i> Online</a>
+                                        </div>
+                                    </div>
+                                    <div class="clearfix"></div>
+                                    <div class="collapse multi-collapse" id="userSettingsCollapse">
+                                        <div class="list-group mt-3 shadow">
+                                            <a href="index.html" class="list-group-item list-group-item-action ">
+                                                <i class="mr-2 icon-umbrella text-blue"></i>Profile
+                        </a>
+                                            <a href="#" class="list-group-item list-group-item-action"><i
+                                                class="mr-2 icon-cogs text-yellow"></i>Settings</a>
+                                            <a href="#" class="list-group-item list-group-item-action"><i
+                                                class="mr-2 icon-security text-purple"></i>Change Password</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <ul class="sidebar-menu" >
+                               <li>            
+                                <div class="dropdown" >
+                                   <button class="dropbtn" style={{textAlign:'left',paddingLeft:15,backgroundColor:'white',color:'gray',fontSize:13}}><i class="icon icon-sailing-boat-water purple-text s-18"></i>Ware House</button>
+                                   <div class="dropdown-content">
+                                      <a onClick={() => changeView(1)}>Add WareHouse</a>
+                                      <a onClick={() => changeView(2)}>List WareHouses</a>
+                                   </div>
+                               </div>
+                                </li>
+
+                                <li>
+                                <div class="dropdown" >
+                                   <button class="dropbtn" style={{textAlign:'left',paddingLeft:15,backgroundColor:'white',color:'gray',fontSize:13}}><i class="icon icon-sailing-boat-water purple-text s-18"></i>Daily Log</button>
+                                   <div class="dropdown-content">
+                                      <a onClick={() => changeView(3)}>Add Daily Log</a>
+                                      <a onClick={() => changeView(4)}>List Daily Log</a>
+                                   </div>
+                               </div>
+                                </li>
+
+                                <li class="treeview" style={{ cursor: 'pointer' }}>
+                                <div class="dropdown">
+                                   <button class="dropbtn" style={{textAlign:'left',paddingLeft:15,backgroundColor:'white',color:'gray',fontSize:13}}><i class="icon icon-sailing-boat-water purple-text s-18"></i>Event</button>
+                                   <div class="dropdown-content">
+                                      <a onClick={() => changeView(5)}>Add Event</a>
+                                      <a onClick={() => changeView(6)}>List Event</a>
+                                   </div>
+                               </div> 
+                                </li>
+
+                                <li class="treeview" style={{ cursor: 'pointer' }}>
+                                <div class="dropdown" >
+                                   <button class="dropbtn" style={{textAlign:'left',paddingLeft:15,backgroundColor:'white',color:'gray',fontSize:13}}><i class="icon icon-sailing-boat-water purple-text s-18"></i>Account</button>
+                                   <div class="dropdown-content">
+                                      <a onClick={() => changeView(7)}>Add Account</a>
+                                      <a onClick={() => changeView(8)}>List Account</a>
+                                   </div>
+                               </div>
+                                </li>
+
+                                <li class="treeview" style={{ cursor: 'pointer' }}>
+                                <div class="dropdown">
+                                   <button class="dropbtn" style={{textAlign:'left',paddingLeft:15,backgroundColor:'white',color:'gray',fontSize:13}}><i class="icon icon-sailing-boat-water purple-text s-18"></i>User Table</button>
+                                   <div class="dropdown-content">
+                                      <a onClick={() => changeView(9)}>Add User</a>
+                                      <a onClick={() => changeView(10)}>List Users</a>
+                                   </div>
+                               </div>
+                                </li>
+
+                                <li class="treeview" style={{ cursor: 'pointer' }}>
+                                <div class="dropdown">
+                                   <button class="dropbtn" style={{textAlign:'left',paddingLeft:15,backgroundColor:'white',color:'gray',fontSize:13}}><i class="icon icon-sailing-boat-water purple-text s-18"></i>Product</button>
+                                   <div class="dropdown-content">
+                                      <a onClick={() => changeView(20)}>Add Product</a>
+                                      <a onClick={() => changeView(21)}>List Product</a>
+                                   </div>
+                               </div>
+                                </li>
+
+                                <li class="treeview" style={{ cursor: 'pointer' }}>
+                                <div class="dropdown">
+                                   <button class="dropbtn" style={{textAlign:'left',paddingLeft:15,backgroundColor:'white',color:'gray',fontSize:13}}><i class="icon icon-sailing-boat-water purple-text s-18"></i>Product Inventory</button>
+                                   <div class="dropdown-content">
+                                      <a onClick={() => changeView(13)}>Add Product Inventory</a>
+                                      <a onClick={() => changeView(14)}>List Product Inventory</a>
+                                   </div>
+                               </div>
+                                </li>
+
+                                <li class="treeview" style={{ cursor: 'pointer' }}><a >
+                                    <i class="icon icon-sailing-boat-water purple-text s-18"></i> <span onClick={() => changeView(11)}>List All Sales Order Line Item</span>
+                                </a>
+                                </li>
+                                
+                                <li class="treeview" style={{ cursor: 'pointer' }}><a >
+                                    <i class="icon icon-sailing-boat-water purple-text s-18"></i> <span onClick={() => changeView(12)}>List All Sales Order</span>
+                                </a>
+                                </li>
+                                
+                                {/* <li class="treeview" style={{ cursor: 'pointer' }}><a >
+                                    <i class="icon icon-sailing-boat-water purple-text s-18"></i> <span onClick={() => changeView(13)}>List Product Inventory</span>
+                                </a>
+                                </li> */}
+                                
+                                <li class="treeview" style={{ cursor: 'pointer' }}><a >
+                                    <i class="icon icon-sailing-boat-water purple-text s-18"></i> <span onClick={() => changeView(15)}>List WareHouse Product</span>
+                                </a>
+                                </li>
+                                <li class="treeview" style={{ cursor: 'pointer' }}><a >
+                                    <i class="icon icon-sailing-boat-water purple-text s-18"></i> <span onClick={() => changeView(16)}>List All Invoice Line Item</span>
+                                </a>
+                                </li>
+                                <li class="treeview" style={{ cursor: 'pointer' }}><a >
+                                    <i class="icon icon-sailing-boat-water purple-text s-18"></i> <span onClick={() => changeView(17)}>List All Expenses</span>
+                                </a>
+                                </li>
+
+                                <li class="treeview" style={{ cursor: 'pointer' }}><a >
+                                    <i class="icon icon-sailing-boat-water purple-text s-18"></i> <span onClick={() => changeView(18)}>List All Collections</span>
+                                </a>
+                                </li>
+                                
+                                <li class="treeview" style={{ cursor: 'pointer' }}><a >
+                                    <i class="icon icon-sailing-boat-water purple-text s-18"></i> <span onClick={() => changeView(19)}>List All Invoices</span>
+                                </a>
+                                </li>
+ 
+                                
+                            </ul>
+
+                        </section>
+                    </aside>
+                </div>
+            </span>
+
+            <span>
+                {getContainer}
+            </span>
+
+            </div>
+     

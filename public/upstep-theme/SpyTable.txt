@@ -1,0 +1,914 @@
+import React, { useState, useEffect } from "react";
+import MaterialTable from "material-table";
+import {
+  postData,
+  getData,
+  postDataAndImage,
+  ServerURL,
+} from "../FetchNodeServices";
+import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Typography from "@material-ui/core/Typography";
+import { makeStyles } from "@material-ui/core/styles";
+import Paper from "@material-ui/core/Paper";
+import Grid from "@material-ui/core/Grid";
+import TextField from "@material-ui/core/TextField";
+import { checkRequire } from "../Checks";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
+import swal from "sweetalert";
+import "date-fns";
+import DateFnsUtils from "@date-io/date-fns";
+import {
+  MuiPickersUtilsProvider,
+  KeyboardTimePicker,
+  KeyboardDatePicker,
+} from "@material-ui/pickers";
+
+const useStyles = makeStyles((theme) => ({
+  rootx: {
+    // display: "flex",
+    // marginTop: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tablediv: {
+    // width: window.innerWidth * 0.8,
+    height: "auto",
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 220,
+    fullWidth: "true",
+  },
+  root: {
+    marginTop: 40,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: 15,
+  },
+  mainpaper: {
+    width: 500,
+    margin: 7,
+    padding: 15,
+    backgroundColor: "#f1f2f6",
+  },
+  button: {
+    width: 120,
+  },
+  container: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 15,
+  },
+  headingstyle: {
+    margin: 10,
+    padding: 10,
+    display: "flex",
+    width: "auto",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#dfe4ea",
+    marginBottom: 15,
+  },
+  center: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    margin: "10",
+  },
+}));
+
+function DisplayAllAssignTask() {
+  const [state, setState] = useState({
+    columns: [
+      { title: "Assign Task Id", field: "assigntaskid", editable: "never" },
+      { title: "Task Id ", field: "taskid", editable: "never" },
+      // { title: "Employee Id", field: "employeeid", editable: "never" },
+      { title: "Employee Name", field: "employee_name", editable: "never" },
+      {
+        title: "Assign Date",
+        field: "assigndate",
+        render: (rowData) => <div>{displayDate(rowData.assigndate)}</div>,
+      },
+      {
+        title: "Assign Time",
+        field: "assigntime",
+        render: (rowData) => <div>{displayTime(rowData.assigntime)}</div>,
+      },
+      { title: "Task Status", field: "taskstatus", editable: "never" },
+    ],
+  });
+
+  const [getList, setList] = useState([]);
+  const [getTaskList, setTaskList] = useState([]);
+  const [getOpen, setOpen] = useState(false);
+  const [getAssignTaskId, setAssignTaskId] = useState("");
+  const [getTaskId, setTaskId] = useState("");
+  const [getEmployeeId, setEmployeeId] = useState("");
+  const [getMsg, setMsg] = useState("");
+  const [selectedAssignDate, setSelectedAssignDate] = React.useState(
+    new Date()
+  );
+  const [selectedAssignTime, setSelectedAssignTime] = React.useState(
+    new Date()
+  );
+  const [getTaskStatus, setTaskStatus] = React.useState("");
+  const [getErrTaskId, setErrTaskId] = useState("");
+  const [getErrEmployeeId, setErrEmployeeId] = useState("");
+  const [ErrselectedAssignDate, setErrSelectedAssignDate] = React.useState(
+    new Date()
+  );
+  const [ErrselectedAssignTime, setErrSelectedAssignTime] = React.useState(
+    new Date()
+  );
+  const [getErrTaskStatus, setErrTaskStatus] = useState("");
+  const [getEmployeesList, setEmployeesList] = useState([]);
+  const [venId, setvenId] = useState('')
+
+  const fetchData = async (V_id) => {
+    let body = {
+      vendorid: V_id,
+    };
+    let list = await postData("assigntask/displayById", body);
+    console.log('dataaaaaaaaaaaa',list.data);
+    setList(list.data);
+  };
+
+  useEffect(function () {
+    var vendor = JSON.parse(localStorage.getItem("vendor"));
+    setvenId(vendor.vendorid)
+    fetchData(vendor.vendorid);
+    fetchAllTask(vendor.vendorid);
+    fetchEmployees(vendor.vendorid);
+    // fetchAllTask();
+    // fetchEmployees();
+  }, []);
+
+  const fetchEmployees = async (V_id) => {
+    let body = {
+      vendorid: V_id,
+    };
+    var list = await postData("employees/displayall", body);
+    setEmployeesList(list.data);
+  };
+
+  // const fetchEmployees = async () => {
+  //   var list = await getData("employees/displayall");
+  //   setEmployeesList(list.data);
+  // };
+
+  const fillEmployees = () => {
+    return getEmployeesList.map(function (item, key) {
+      return (
+        <MenuItem value={item.employeeid}>
+          {item.employeename}&nbsp;&nbsp;{item.mobileno}
+        </MenuItem>
+      );
+    });
+  };
+
+  const deleteAssiTask=async(oldData)=>{
+
+    let body = { assigntaskid: oldData.assigntaskid };
+   let result = await postData("assigntask/deleteRecord", body);
+        console.log('resultDelete',result);    
+  }
+
+  const handleDelete = async (oldData) => {
+
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, you will not be able to recover this Assigned Task!",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then((willDelete)=>{
+      if(willDelete){
+        deleteAssiTask(oldData)
+        swal("Poof! Your Assigned Task has been deleted!", {
+          icon: "success",
+        }).then(()=>{
+          var vendor = JSON.parse(localStorage.getItem("vendor"));
+          fetchData(vendor.vendorid);
+        })
+      }
+      else
+      {
+        swal("Your Assigned Task is safe!");
+      }
+    })
+  };
+  const handleClickOpen = async (rowData) => {
+    setOpen(true);
+    // fetchTaskInEditform(rowData.assigntaskid);
+    setAssignTaskId(rowData.assigntaskid);
+    setTaskId(rowData.taskid);
+    setEmployeeId(rowData.employeeid);
+    setTaskStatus(rowData.taskstatus);
+    setSelectedAssignTime(rowData.assigntime);
+    setSelectedAssignDate(rowData.assigndate);
+  };
+
+  // const displayDate = (date) => {
+  //   let d = new Date(date);
+  //   let cd = d.getDate() + "-" + (d.getMonth() + 1) + "-" + d.getFullYear();
+  //   return cd;
+  // };
+  const displayDate = (date) => {
+    let d = new Date(date);
+    let dd = d.getDate();
+    // let newdd = dd+1
+    let newdd = dd
+    let mm = d.getMonth()+1;
+    var yyyy = d.getFullYear();
+    if(newdd<10) 
+    {
+      newdd='0'+newdd;
+    } 
+    if(mm<10) 
+    {
+        mm='0'+mm;
+    } 
+    let cd = newdd+ "-" +mm+ "-" +yyyy;
+    return cd;
+  };
+
+  const displayTime = (time) => {
+    // console.log("my Timeeeeeeeeee",time)
+    let tm = new Date(time);
+    var h = tm.getHours();
+    var m = tm.getMinutes();
+    // if(h < 10){
+    //   h = '0'+h
+    // }
+    // if(m < 10){
+    //   m = '0'+m
+    // }
+    var t = h > 12 ? h - 12 + ":" + m + " PM" : h + ":" + m + " AM";
+    return t;
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    fetchData(venId);
+    setMsg("");
+    setErrTaskId("");
+    setErrEmployeeId("");
+    setErrSelectedAssignDate("");
+    setErrSelectedAssignTime("");
+    setErrTaskStatus("");
+    
+  };
+
+  const handleEdit = async (e) => {
+    e.preventDefault();
+    var err = false;
+    if (!checkRequire(getTaskId)) {
+      err = true;
+      setErrTaskId("/images/cross.png");
+    }
+    if (checkRequire(getTaskId)) {
+      setErrTaskId("/images/tick.png");
+    }
+
+    if (!checkRequire(getEmployeeId)) {
+      err = true;
+      setErrEmployeeId("/images/cross.png");
+    }
+    if (checkRequire(getEmployeeId)) {
+      setErrEmployeeId("/images/tick.png");
+    }
+
+    if (!checkRequire(selectedAssignDate)) {
+      err = true;
+      setErrSelectedAssignDate("/images/cross.png");
+    }
+    if (checkRequire(selectedAssignDate)) {
+      setErrSelectedAssignDate("/images/tick.png");
+    }
+
+    if (!checkRequire(selectedAssignTime)) {
+      err = true;
+      setErrSelectedAssignTime("/images/cross.png");
+    }
+    if (checkRequire(selectedAssignTime)) {
+      setErrSelectedAssignTime("/images/tick.png");
+    }
+
+    if (!checkRequire(getTaskStatus)) {
+      err = true;
+      setErrTaskStatus("/images/cross.png");
+    }
+    if (checkRequire(getTaskStatus)) {
+      setErrTaskStatus("/images/tick.png");
+    }
+
+    if (!err) {
+      let body = {
+        assigntaskid: getAssignTaskId,
+        taskid: getTaskId,
+        employeeid: getEmployeeId,
+        // assigndate: selectedAssignDate,
+        // assigntime: selectedAssignTime,
+        taskstatus: getTaskStatus,
+      };
+      console.log(body);
+      var result = await postData("assigntask/editRecord", body);
+
+      if (result) {
+        handleClose();
+        //   setMsg("Record Edited ...");
+        swal("Assign Task Successfully", " ", "success", {
+          buttons: true,
+        }).then(()=>      
+        fetchData(venId))
+      } else {
+        swal("Fail to Edit Record ..","error");
+      }
+    } else {
+      swal("Error in Input","error");
+    }
+  };
+
+  const handleAssignDateChange = (date) => {
+    setSelectedAssignDate(date);
+  };
+
+  const handleAssignTimeChange = (time) => {
+    setSelectedAssignTime(time);
+  };
+
+  const fetchTaskInEditform = async (assigntaskid) => {
+    var body = { assigntaskid: assigntaskid };
+    //console.log(brandid)
+    var list = await postData("assigntask/displayTaskInEditform", body);
+    //console.log('nidhi',list[0].packageid)
+    // setTaskId(list[0].taskid);
+    setTaskId(list.data);
+  };
+
+  // const fetchAllTask = async () => {
+  //   var list = await getData("task/displayall");
+  //   setTaskList(list.data);
+  // };
+  const fetchAllTask = async (V_id) => {
+    // alert(V_id);
+    let body = {
+      vendorid: V_id,
+    };
+    var list = await postData("task/displayall", body);
+    setTaskList(list.data);
+    // setTaskId(list.data);
+  };
+
+  // const handleTaskChange = (event) => {
+  //   setTaskId(event.target.value);
+  // };
+
+  const fillTaskItem = () => {
+    return getTaskList.map((item, key) => {
+      return (
+          <MenuItem value={item.taskid}>{item.taskname}</MenuItem>
+      );
+    });
+  };
+
+  //////////////////////////////////////////// *Show Product* /////////////////////////////////////////////////
+
+  const [entryStart, setEntryStart] = useState(0);
+  const [entryEnd, setEntryEnd] = useState(10);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
+
+  const sortTable = (n) => {
+    let table,
+      rows,
+      switching,
+      i,
+      x,
+      y,
+      willSwitch,
+      directory,
+      switchCount = 0;
+    table = document.getElementById("productTable");
+    switching = true;
+    directory = "ascending";
+
+    while (switching) {
+      switching = false;
+      rows = table.rows;
+
+      for (i = 1; i < rows.length - 1; i++) {
+        willSwitch = false;
+
+        x = rows[i].getElementsByTagName("TD")[n];
+        y = rows[i + 1].getElementsByTagName("TD")[n];
+
+        if (directory === "ascending") {
+          if (n === 0 || n === 1 || n === 2) {
+            if (Number(x.innerHTML) > Number(y.innerHTML)) {
+              willSwitch = true;
+              break;
+            }
+          } else if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+            willSwitch = true;
+            break;
+          }
+        } else if (directory === "descending") {
+          if (n === 0 || n === 1 || n === 2) {
+            if (Number(x.innerHTML) < Number(y.innerHTML)) {
+              willSwitch = true;
+              break;
+            }
+          } else if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+            willSwitch = true;
+            break;
+          }
+        }
+      }
+      if (willSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+
+        switchCount++;
+      } else {
+        if (switchCount === 0 && directory === "ascending") {
+          directory = "descending";
+          switching = true;
+        }
+      }
+    }
+  };
+
+  const searchBar = () => {
+    let filter = document.getElementById("myInput").value.toUpperCase();
+    let productTable = document.getElementById("productTable");
+    let tr = productTable.getElementsByTagName("tr");
+    let cells = document.getElementById("productTable").rows[0].cells.length;
+
+    for (let i = 0; i < tr.length; i++) {
+      let j = 0;
+      while (j < cells - 2) {
+        let td = tr[i].getElementsByTagName("td")[j++];
+
+        if (td) {
+          let textValue = td.textContent || td.innerHTML;
+          if (textValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+            break;
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+    }
+  };
+
+  const getAssignTask = (indOfRow) => {
+    let c = [];
+    if (getList.length > entriesPerPage) {
+      for (let i = entryStart; i < entryEnd; i++) {
+        c[i] = showAssignTask(i);
+      }
+    } else {
+      for (let i = 0; i < getList.length; i++) {
+        c[i] = showAssignTask(i);
+      }
+    }
+    return c;
+  };
+
+  const showEntry = (value) => {
+    setEntryEnd(
+      entryStart + value > getList.length ? getList.length : entryStart + value
+    );
+    setEntriesPerPage(value);
+  };
+
+  const handlePaging = () => {
+    let totalPages = getList.length / entriesPerPage;
+    let pageNumber = [];
+
+    for (let i = 0; i < totalPages; i++) {
+      pageNumber[i] = (
+        <li>
+          <a
+            href={() => false}
+            onClick={() => handlePageNumber(i, entriesPerPage)}
+            className={"pagination-link"}
+          >
+            {i + 1}
+          </a>
+        </li>
+      );
+    }
+
+    return pageNumber;
+  };
+
+  const handlePageNumber = (entryNumber, entriesPerPage) => {
+    setEntryStart(entryNumber * entriesPerPage);
+    setEntryEnd(
+      (entryNumber + 1) * entriesPerPage < getList.length
+        ? (entryNumber + 1) * entriesPerPage
+        : getList.length
+    );
+  };
+
+  const nextPage = () => {
+    setEntryStart(entryEnd);
+    setEntryEnd(
+      entryEnd + entriesPerPage > getList.length
+        ? getList.length
+        : entryEnd + entriesPerPage
+    );
+  };
+
+  const previousPage = () => {
+    setEntryStart(
+      entryStart - entriesPerPage < 0 ? 0 : entryStart - entriesPerPage
+    );
+    setEntryEnd(entryStart - entriesPerPage < 0 ? entriesPerPage : entryStart);
+  };
+
+  const showAssignTask = (i) => {
+    return (
+      <tr>
+        <td>
+          {i + 1}
+        </td>
+        {/* <td> {getList[i].assigntaskid} </td> */}
+        <td> {getList[i].taskid} </td>
+        <td> {getList[i].employee_name} </td>
+        <td> {displayDate(getList[i].assigndate)} </td>
+        {/* <td> {displayTime(getList[i].assigntime)}</td> */}
+        <td> {getList[i].assigntime}</td>
+        <td>
+          {/* {getList[i].taskstatus}  */}
+          {getList[i].taskstatus === "Not Completed" ? (
+            <div class="badge badge-danger"> {getList[i].taskstatus} </div>
+          ) : (
+            <div class="badge badge-success"> {getList[i].taskstatus} </div>
+          )}
+        </td>
+        <td>
+          <a
+            href={() => false}
+            onClick={() => handleClickOpen(getList[i])}
+            style={{ color: "#466bff" }}
+            defaultValue={i}
+          >
+            <i
+              style={{ color: "#466bff", marginRight: 10, fontSize: 18 }}
+              className="fa fa-edit"
+            />
+          </a>
+          <a
+            href={() => false}
+            onClick={() => handleDelete(getList[i])}
+            style={{ color: "#466bff" }}
+            defaultValue={i}
+          >
+            <i
+              style={{ color: "crimson", fontSize: 20 }}
+              className="fa fa-trash"
+            />
+          </a>
+        </td>
+      </tr>
+    );
+  };
+
+  //////////////////////////////////////////////////////////////////////////////////////////////
+
+  const editDialog = () => {
+    return (
+      <div>
+        <Dialog
+          open={getOpen}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          maxWidth="xl"
+        >
+          {/* <DialogTitle id="alert-dialog-title">
+            {"Feature Packages Edit"}
+          </DialogTitle> */}
+
+          <div>
+            <div class="panel-header bg-dark">
+              <h3 class="panel-title" style={{ padding: 10 }}>
+                <strong>Assign Task </strong> Edit
+              </h3>
+            </div>
+            <div class="panel-body bg-white">
+              <div class="row">
+                <div class="col-md-12 ">
+                  <form
+                    role="form"
+                    class="form-validation"
+                    novalidate="novalidate"
+                    onSubmit={handleEdit}
+                  >
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <div class="form-group">
+                          <label class="control-label">Assign Task Id</label>
+                          <i class="fa fa-check" style={{ marginLeft: 5 }}></i>
+                          <div class="append-icon">
+                            <input
+                              type="text"
+                              class="form-control"
+                              minlength="3"
+                              placeholder="Assign Task Id"
+                              required=""
+                              aria-required="true"
+                              value={getAssignTaskId}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <div class="form-group">
+                          <label class="control-label">Tasks</label>
+                          <img src={getErrTaskId} width="10" height="10" />
+                          <div class="append-icon">
+                            <Select
+                              fullWidth
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              value={getTaskId}
+                              onChange={(event) => setTaskId(event.target.value)}
+                            >
+                              {fillTaskItem()}
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-12">
+                        <div class="form-group">
+                          <label class="control-label">Employee</label>
+                          <img src={getErrEmployeeId} width="10" height="10" />
+                          <div class="append-icon">
+                            <Select
+                              fullWidth
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              value={getEmployeeId}
+                              onChange={(event) =>
+                                setEmployeeId(event.target.value)
+                              }
+                            >
+                              {fillEmployees()}
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="text-center  m-t-20">
+                      <button
+                        className="btn btn-success btn-transparent"
+                        type="submit"
+                        // class="btn btn-embossed btn-primary"
+                        // onClick={(event) => {
+                        //   handleEdit();
+                        // }}
+                      >
+                        Save Record
+                      </button>
+                    </div>
+                    {getMsg}
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* <DialogActions>
+            <Button
+            //  onClick={handleClose} 
+             color="primary">
+              CANCEL
+            </Button>
+          </DialogActions> */}
+        </Dialog>
+      </div>
+    );
+  };
+
+  const classes = useStyles();
+  return (
+    <div className={classes.rootx}>
+      <div className={classes.tablediv}>
+        <div class="panel-header bg-dark">
+          <h3 class="panel-title" style={{ color: "#FFF", padding: 17 }}>
+            <strong style={{ color: "#FFF" }}>Assign Task List</strong>
+          </h3>
+        </div>
+        <div className="block is-flex is-justify-content-center">
+          <div
+            className="content"
+            style={{
+              background: "white",
+              padding: 20,
+              width: "100%",
+            }}
+          >
+            <div className={"field has-addons is-flex-direction-column"}>
+              <div
+                className={"control"}
+                style={{ padding: 10, display: "block" }}
+              >
+                <div class="append-icon">
+                  <input
+                    type="text"
+                    class="form-control form-white pull-right"
+                    placeholder="Search All Assigning Task here..."
+                    onKeyUp={(event) => searchBar(event)}
+                    id="myInput"
+                  />
+                  <i class="icon-magnifier"></i>
+                </div>
+
+                {/*<button className={"button is-success is-small"}>*/}
+                {/*  <i className={"fa fa-download"} />*/}
+                {/*  <ReactHTMLTableToExcel*/}
+                {/*      className="button is-success is-small"*/}
+                {/*      table="productTable"*/}
+                {/*      filename="categoryList"*/}
+                {/*      sheet="Sheet"*/}
+                {/*      buttonText=<strong>DOWNLOAD EXCEL</strong>*/}
+                {/*  />*/}
+                {/*</button>*/}
+
+                {/*<button style={{marginLeft: 10}} onClick={()=>setEdit(true)}   className="button is-small is-info">*/}
+                {/*  <i style={{marginRight: 12}} className="fa fa-plus-circle" />*/}
+                {/*  <strong> ADD PRODUCT </strong>*/}
+                {/*</button>*/}
+              </div>
+
+              {/*<div>*/}
+              {/*  {addProduct()}*/}
+              {/*</div>*/}
+
+              <div style={{ fontSize: 12 }} className={"control"}>
+                Click on the headers to sort items...
+              </div>
+
+              <div className="table">
+                <table
+                  id="productTable"
+                  className="table table-bordered table-hover"
+                >
+                  <thead className="table" style={{ fontSize: 13 }}>
+                    <tr>
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => sortTable(0)}
+                      >
+                        {" "}
+                        Serial No{" "}
+                      </th>
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => sortTable(1)}
+                      >
+                        {" "}
+                        Task ID{" "}
+                      </th>
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => sortTable(2)}
+                      >
+                        {" "}
+                        Employee Name{" "}
+                      </th>
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => sortTable(3)}
+                      >
+                        {" "}
+                        Assigned On{" "}
+                      </th>
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => sortTable(4)}
+                      >
+                        {" "}
+                        Assigned At{" "}
+                      </th>
+                      <th
+                        style={{ cursor: "pointer" }}
+                        onClick={() => sortTable(5)}
+                      >
+                        {" "}
+                        Task Status{" "}
+                      </th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+
+                  <tbody style={{ fontSize: 13 }}>{getAssignTask()}</tbody>
+                </table>
+
+                <p style={{ fontSize: 13 }}>
+                  {!getList.length
+                    ? "[Nothing to show]"
+                    : "Showing  [" +
+                      (entryStart + 1) +
+                      " - " +
+                      entryEnd +
+                      "] entries of total: " +
+                      getList.length}
+                </p>
+              </div>
+            </div>
+
+            <div
+              className="pagination is-rounded is-small"
+              role="navigation"
+              aria-label="pagination"
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  flexDirection: "column",
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              >
+                Show
+                <select
+                  style={{
+                    borderColor: "#a2a2a2",
+                    borderBox: "none",
+                    cursor: "pointer",
+                    background: "white",
+                  }}
+                  onChange={(event) => showEntry(parseInt(event.target.value))}
+                  className="select"
+                >
+                  {" "}
+                  show entries
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+
+              <div>
+                <ul
+                  style={{ alignItems: "baseline" }}
+                  className="pagination-list"
+                >
+                  {handlePaging()}
+                </ul>
+                {entryStart === 0 || getList.length < entriesPerPage ? (
+                  ""
+                ) : (
+                  <a
+                    href={() => false}
+                    onClick={() => previousPage()}
+                    className="pagination-previous"
+                  >
+                    Previous
+                  </a>
+                )}
+                {getList.length === entryEnd ||
+                getList.length < entriesPerPage ? (
+                  ""
+                ) : (
+                  <a
+                    href={() => false}
+                    onClick={() => nextPage()}
+                    className="pagination-next"
+                  >
+                    Next page
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {editDialog()}
+    </div>
+  );
+}
+
+export default DisplayAllAssignTask;
