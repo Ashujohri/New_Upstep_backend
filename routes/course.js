@@ -65,10 +65,10 @@ router.post("/showCourses", (req, res) => {
       )
         .then((responsee) => responsee.json())
         .then((AllProductsResult) => {
-          // console.log(
-          //   "AllProductsResult============recordsss======56",
-          //   AllProductsResult.records
-          // );
+          console.log(
+            "AllProductsResult============recordsss======69",
+            AllProductsResult.records
+          );
 
           if (AllProductsResult.records.length != 0) {
             // console.log("inn iffffffffff 60");
